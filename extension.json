@@ -1,12 +1,12 @@
 {
-	"name": "lf-lcapi-stl-lib",
-	"uuid": "8594dc542cb94074996156091275c0a4",
-	"displayName": "LF_LCAPI_STL_Lib",
-	"description": "LoveFinderSeries为简化部分api开发的无额外依赖的js框架",
-	"version": "1.0.1",
-	"publisher": "JLCEDA <support@lceda.cn>",
+	"name": "pro-api-sdk",
+	"uuid": "",
+	"displayName": "PRO API SDK",
+	"description": "嘉立创EDA & EasyEDA 专业版扩展 API 开发工具",
+	"version": "1.0.0",
+	"publisher": "",
 	"engines": {
-		"eda": "^2.3.0"
+		"eda": "^3.0.0"
 	},
 	"license": "Apache-2.0",
 	"repository": {
@@ -15,36 +15,52 @@
 	},
 	"categories": "Other",
 	"keywords": [
-		"LIB"
+		"SDK"
 	],
 	"images": {
 		"logo": "./images/logo.png"
 	},
-	"homepage": "https://pro.lceda.cn",
-	"bugs": "https://lceda.cn/page/feedback?originPage=other",
+	"homepage": "",
+	"bugs": "",
 	"activationEvents": {},
 	"entry": "./dist/index",
 	"dependentExtensions": {},
 	"headerMenus": {
-		"pcb": [
+		"home": [
 			{
-				"id": "id_LF_LCAPI_STL_Lib",
-				"title": "LoveFinder_LCAPI测试插件",
+				"id": "API SDK",
+				"title": "API SDK",
 				"menuItems": [
 					{
 						"id": "About",
 						"title": "About...",
 						"registerFn": "about"
-					},
+					}
+				]
+			}
+		],
+		"sch": [
+			{
+				"id": "API SDK",
+				"title": "API SDK",
+				"menuItems": [
 					{
-						"id": "Test_Sys_Lib",
-						"title": "在PCB页面测试SYS类",
-						"registerFn": "fn_load_SYSAPI_page"
-					},
+						"id": "About",
+						"title": "About...",
+						"registerFn": "about"
+					}
+				]
+			}
+		],
+		"pcb": [
+			{
+				"id": "API SDK",
+				"title": "API SDK",
+				"menuItems": [
 					{
-						"id": "Test_Post_API",
-						"title": "测试post请求",
-						"registerFn": "fn_load_POST_test_page"
+						"id": "About",
+						"title": "About...",
+						"registerFn": "about"
 					}
 				]
 			}
