@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElecAntifreeze API 测试</title>
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-icons.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .test-card {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+        .response-area {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .status-badge {
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #0d6efd;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .api-url {
+            font-family: 'Courier New', monospace;
+            background-color: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .section-title {
+            color: #0d6efd;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 标题 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="text-center">
+                    <i class="bi bi-cloud-upload"></i> ElecAntifreeze 元器件系统 API 测试
+                </h2>
+                <p class="text-center text-muted">
+                    服务地址: <span class="api-url">http://localhost:11451</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- 健康检查 -->
+        <div class="card test-card">
+            <div class="card-header">
+                <i class="bi bi-heart-pulse"></i> 1. 健康检查
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <button class="btn btn-primary" onclick="testHealthCheck()">
+                            <i class="bi bi-play-fill"></i> 发起健康检查
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <span id="healthStatus" class="badge bg-secondary status-badge" style="display: none;"></span>
+                    </div>
+                </div>
+                <div class="mt-3 response-area rounded p-3" id="healthResponse">
+                    点击按钮发起请求...
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加元器件 -->
+        <div class="card test-card">
+            <div class="card-header">
+                <i class="bi bi-plus-circle"></i> 2. 添加元器件 (POST /addComp)
+            </div>
+            <div class="card-body">
+                <form id="addCompForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">元器件名称 *</label>
+                                <input type="text" class="form-control" id="compName" placeholder="例如: 10K, STM32F103C8T6" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">类型</label>
+                                <select class="form-select" id="compType">
+                                    <option value="">-- 选择类型 --</option>
+                                    <option value="电阻">电阻</option>
+                                    <option value="电容">电容</option>
+                                    <option value="电感">电感</option>
+                                    <option value="二极管">二极管</option>
+                                    <option value="三极管">三极管</option>
+                                    <option value="IC芯片">IC芯片</option>
+                                    <option value="连接器">连接器</option>
+                                    <option value="晶振">晶振</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">封装</label>
+                                <select class="form-select" id="compPackage">
+                                    <option value="">-- 选择封装 --</option>
+                                    <option value="0402">0402</option>
+                                    <option value="0603">0603</option>
+                                    <option value="0805">0805</option>
+                                    <option value="1206">1206</option>
+                                    <option value="SOP-8">SOP-8</option>
+                                    <option value="SOP-16">SOP-16</option>
+                                    <option value="DIP-8">DIP-8</option>
+                                    <option value="DIP-16">DIP-16</option>
+                                    <option value="QFP-48">QFP-48</option>
+                                    <option value="TO-92">TO-92</option>
+                                    <option value="TO-220">TO-220</option>
+                                    <option value="SMA">SMA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">库存数量</label>
+                                <input type="number" class="form-control" id="compStock" value="100" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">总价值(¥)</label>
+                                <input type="number" class="form-control" id="compPrice" value="10.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">自定义属性 (JSON格式，可选)</label>
+                                <textarea class="form-control" id="compAttrs" rows="2" placeholder='{"voltage": "5V", "power": "1/4W"}'></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus-lg"></i> 添加元器件
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary ms-2" onclick="fillSampleData()">
+                        <i class="bi bi-clipboard"></i> 填充示例数据
+                    </button>
+                </form>
+                <div class="mt-3 response-area rounded p-3" id="addCompResponse">
+                    填写表单并点击"添加元器件"按钮...
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速测试 -->
+        <div class="card test-card">
+            <div class="card-header">
+                <i class="bi bi-lightning"></i> 3. 快速测试 (预设数据)
+            </div>
+            <div class="card-body">
+                <p class="text-muted">点击下方按钮快速测试添加不同类型的元器件：</p>
+                <div class="btn-group flex-wrap" role="group">
+                    <button class="btn btn-outline-danger" onclick="quickTest('电阻')">
+                        <i class="bi bi-lightning"></i> 添加电阻
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="quickTest('电容')">
+                        <i class="bi bi-lightning"></i> 添加电容
+                    </button>
+                    <button class="btn btn-outline-success" onclick="quickTest('电感')">
+                        <i class="bi bi-lightning"></i> 添加电感
+                    </button>
+                    <button class="btn btn-outline-dark" onclick="quickTest('二极管')">
+                        <i class="bi bi-lightning"></i> 添加二极管
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="quickTest('三极管')">
+                        <i class="bi bi-lightning"></i> 添加三极管
+                    </button>
+                    <button class="btn btn-outline-info" onclick="quickTest('IC芯片')">
+                        <i class="bi bi-lightning"></i> 添加IC芯片
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="quickTest('晶振')">
+                        <i class="bi bi-lightning"></i> 添加晶振
+                    </button>
+                </div>
+                <div class="mt-3 response-area rounded p-3" id="quickTestResponse">
+                    点击上方按钮快速测试...
+                </div>
+            </div>
+        </div>
+
+        <!-- 已有测试数据参考 -->
+        <div class="card test-card">
+            <div class="card-header">
+                <i class="bi bi-database"></i> 4. 已有测试数据参考
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 class="section-title">类型 (component_types)</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item">电阻</li>
+                            <li class="list-group-item">电容</li>
+                            <li class="list-group-item">电感</li>
+                            <li class="list-group-item">二极管</li>
+                            <li class="list-group-item">三极管</li>
+                            <li class="list-group-item">IC芯片</li>
+                            <li class="list-group-item">连接器</li>
+                            <li class="list-group-item">晶振</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="section-title">封装 (component_packages)</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item">0402, 0603, 0805, 1206</li>
+                            <li class="list-group-item">SOP-8, SOP-16</li>
+                            <li class="list-group-item">DIP-8, DIP-16</li>
+                            <li class="list-group-item">QFP-48</li>
+                            <li class="list-group-item">TO-92, TO-220</li>
+                            <li class="list-group-item">SMA</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="section-title">元器件示例</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item">10K 1% (电阻)</li>
+                            <li class="list-group-item">4.7K 5% (电阻)</li>
+                            <li class="list-group-item">100nF 50V (电容)</li>
+                            <li class="list-group-item">10uF 16V (电容)</li>
+                            <li class="list-group-item">1N4148 (二极管)</li>
+                            <li class="list-group-item">NE555 (IC芯片)</li>
+                            <li class="list-group-item">LM358 (IC芯片)</li>
+                            <li class="list-group-item">16MHz (晶振)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API 基础地址
+        const API_BASE = 'http://localhost:11451';
+
+        // 格式化JSON显示
+        function formatJSON(data) {
+            return JSON.stringify(data, null, 2);
+        }
+
+        // 显示响应结果
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const content = typeof data === 'object' ? formatJSON(data) : data;
+            element.innerHTML = `<span class="text-muted">[${timestamp}]</span>\n${content}`;
+            element.style.borderLeft = isError ? '4px solid #dc3545' : '4px solid #198754';
+        }
+
+        // 显示状态徽章
+        function showStatus(elementId, success, message) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'inline-block';
+            if (success) {
+                element.className = 'badge bg-success status-badge';
+                element.textContent = '✓ ' + message;
+            } else {
+                element.className = 'badge bg-danger status-badge';
+                element.textContent = '✗ ' + message;
+            }
+        }
+
+        // 1. 健康检查
+        async function testHealthCheck() {
+            const responseDiv = 'healthResponse';
+            const statusBadge = 'healthStatus';
+            
+            showResponse(responseDiv, '请求中...');
+            showStatus(statusBadge, true, '请求中...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                showResponse(responseDiv, data);
+                showStatus(statusBadge, data.success, '服务正常');
+            } catch (error) {
+                showResponse(responseDiv, `请求失败: ${error.message}`, true);
+                showStatus(statusBadge, false, '连接失败');
+            }
+        }
+
+        // 2. 添加元器件
+        document.getElementById('addCompForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('compName').value.trim();
+            const type = document.getElementById('compType').value;
+            const pkg = document.getElementById('compPackage').value;
+            const stock = parseInt(document.getElementById('compStock').value) || 0;
+            const price = parseFloat(document.getElementById('compPrice').value) || 0;
+            const attrsText = document.getElementById('compAttrs').value.trim();
+            
+            if (!name) {
+                showResponse('addCompResponse', '请输入元器件名称', true);
+                return;
+            }
+            
+            // 构建请求数据
+            const requestData = {
+                name: name,
+                stock: stock,
+                totalPrice: price
+            };
+            
+            if (type) requestData.type = type;
+            if (pkg) requestData.package = pkg;
+            
+            // 解析自定义属性
+            if (attrsText) {
+                try {
+                    const attrs = JSON.parse(attrsText);
+                    Object.assign(requestData, attrs);
+                } catch (e) {
+                    showResponse('addCompResponse', '自定义属性JSON格式错误: ' + e.message, true);
+                    return;
+                }
+            }
+            
+            showResponse('addCompResponse', '请求中...\n\n请求体:\n' + formatJSON(requestData));
+            
+            try {
+                const response = await fetch(`${API_BASE}/addComp`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                showResponse('addCompResponse', data);
+                
+                if (data.success) {
+                    showToast('元器件添加成功! ID: ' + data.data.id, 'success');
+                } else {
+                    showToast('添加失败: ' + data.error, 'danger');
+                }
+            } catch (error) {
+                showResponse('addCompResponse', `请求失败: ${error.message}`, true);
+            }
+        });
+
+        // 填充示例数据
+        function fillSampleData() {
+            document.getElementById('compName').value = 'STM32F103C8T6';
+            document.getElementById('compType').value = 'IC芯片';
+            document.getElementById('compPackage').value = 'LQFP48';
+            document.getElementById('compStock').value = '50';
+            document.getElementById('compPrice').value = '150.00';
+            document.getElementById('compAttrs').value = '{\n  "manufacturer": "ST",\n  "core": "ARM Cortex-M3",\n  "flash": "64KB"\n}';
+        }
+
+        // 快速测试
+        async function quickTest(type) {
+            const responseDiv = 'quickTestResponse';
+            showResponse(responseDiv, `正在添加${type}...`);
+            
+            const sampleData = {
+                '电阻': { name: '22K 1%', type: '电阻', package: '0805', stock: 500, totalPrice: 5.00, resistance: '22K', tolerance: '1%', power: '1/8W' },
+                '电容': { name: '47uF 25V', type: '电容', package: '1206', stock: 200, totalPrice: 8.00, capacitance: '47uF', voltage: '25V' },
+                '电感': { name: '100uH', type: '电感', package: '0805', stock: 100, totalPrice: 12.00, inductance: '100uH', current: '500mA' },
+                '二极管': { name: 'SS34', type: '二极管', package: 'SMA', stock: 150, totalPrice: 6.00, model: 'SS34', type: '肖特基' },
+                '三极管': { name: '2N3906', type: '三极管', package: 'TO-92', stock: 80, totalPrice: 5.00, model: '2N3906', type: 'PNP' },
+                'IC芯片': { name: 'ATmega328P', type: 'IC芯片', package: 'DIP-28', stock: 20, totalPrice: 25.00, model: 'ATmega328P', function: 'MCU' },
+                '晶振': { name: '32.768kHz', type: '晶振', package: '0603', stock: 50, totalPrice: 3.00, frequency: '32.768kHz' }
+            };
+            
+            const data = sampleData[type];
+            if (!data) {
+                showResponse(responseDiv, `未知类型: ${type}`, true);
+                return;
+            }
+            
+            showResponse(responseDiv, '请求体:\n' + formatJSON(data));
+            
+            try {
+                const response = await fetch(`${API_BASE}/addComp`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                showResponse(responseDiv, result);
+                
+                if (result.success) {
+                    showToast(`${type} 添加成功! ID: ${result.data.id}`, 'success');
+                } else {
+                    showToast(`添加失败: ${result.error}`, 'danger');
+                }
+            } catch (error) {
+                showResponse(responseDiv, `请求失败: ${error.message}`, true);
+            }
+        }
+
+        // 显示Toast消息
+        function showToast(message, type = 'info') {
+            // 移除对EDA API的依赖，避免iframe中调用失败
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

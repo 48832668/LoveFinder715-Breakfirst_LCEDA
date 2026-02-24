@@ -1,0 +1,53 @@
+{
+	"name": "lf-lcapi-stl-lib",
+	"uuid": "8594dc542cb94074996156091275c0a4",
+	"displayName": "LF_LCAPI_STL_Lib",
+	"description": "LoveFinderSeries为简化部分api开发的无额外依赖的js框架",
+	"version": "1.0.1",
+	"publisher": "JLCEDA <support@lceda.cn>",
+	"engines": {
+		"eda": "^2.3.0"
+	},
+	"license": "Apache-2.0",
+	"repository": {
+		"type": "extension-store",
+		"url": ""
+	},
+	"categories": "Other",
+	"keywords": [
+		"LIB"
+	],
+	"images": {
+		"logo": "./images/logo.png"
+	},
+	"homepage": "https://pro.lceda.cn",
+	"bugs": "https://lceda.cn/page/feedback?originPage=other",
+	"activationEvents": {},
+	"entry": "./dist/index",
+	"dependentExtensions": {},
+	"headerMenus": {
+		"pcb": [
+			{
+				"id": "id_LF_LCAPI_STL_Lib",
+				"title": "LoveFinder_LCAPI测试插件",
+				"menuItems": [
+					{
+						"id": "About",
+						"title": "About...",
+						"registerFn": "about"
+					},
+					{
+						"id": "Test_Sys_Lib",
+						"title": "在PCB页面测试SYS类",
+						"registerFn": "fn_load_SYSAPI_page"
+					},
+					{
+						"id": "Test_Post_API",
+						"title": "测试post请求",
+						"registerFn": "fn_load_POST_test_page"
+					}
+				]
+			}
+		]
+	}
+}
